@@ -1,3 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -6,188 +12,155 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model Project {
+  ProjectCode             String    @id
+  NameOfTheCollege        String
+  CollegeCode            String
+  Year                    String
+  CourseStream            String
+  DomainOfTraining       String
+  TypeOfProject           String
+  AcademicYear           String
+  Sales                   String
+  MOUSignedDate          DateTime
+  TrainingStartDate      DateTime
+  TrainingEndDate        DateTime
+  NoOfStudents            Int
+  CostPerStudent         Float
+  TotalContractValue     Float
+  TotalContractValueInclGST Float
+  HrsPerBatch            Int
+  TypeOfPayment          String
+  PaymentPercentage      Float
+  NoOfInvoices           Int
+  Invoices               Invoice[]
+  Batches                Batch[]
+  TrainerAssignments     TrainerAssignment[]
+  TrainerInvoiceData     TrainerInvoiceData[]
+  Students               Student[]
+}
 
 model Admin {
-  id       String @id
-  username String @unique
+  adminId String @id
+  username String
+  org String
+  email String
+  password String
 }
 
 model Student {
-  id          String       @id
-  username    String       @unique
-  name        String
-  surname     String
-  email       String?      @unique
-  phone       String?      @unique
-  address     String
-  img         String?
-  bloodType   String
-  sex         UserSex
-  createdAt   DateTime     @default(now())
-  parentId    String
-  parent      Parent       @relation(fields: [parentId], references: [id])
-  classId     Int
-  class       Class        @relation(fields: [classId], references: [id])
-  gradeId     Int
-  grade       Grade        @relation(fields: [gradeId], references: [id])
-  attendances Attendance[]
-  results     Result[]
-  birthday    DateTime
+  StudentID    String  @id
+  StudentName  String
+  Email        String
+  Contact      String
+  Dept         String
+  ProjectCode  String
+  BatchID      String
+  TrainingHours Float
+  Project      Project @relation(fields: [ProjectCode], references: [ProjectCode])
+  Batch        Batch   @relation(fields: [BatchID], references: [BatchID])
 }
 
-model Teacher {
-  id        String    @id
-  username  String    @unique
-  name      String
-  surname   String
-  email     String?   @unique
-  phone     String?   @unique
-  address   String
-  img       String?
-  bloodType String
-  sex       UserSex
-  createdAt DateTime  @default(now())
-  subjects  Subject[]
-  lessons   Lesson[]
-  classes   Class[]
-  birthday  DateTime
+model Batch {
+  BatchID       String   @id
+  ProjectCode   String
+  BatchName     String
+  NoOfStudents  Int
+  TotalBatchHours Float
+  StartDate     DateTime
+  EndDate       DateTime
+  Project       Project @relation(fields: [ProjectCode], references: [ProjectCode])
+  Students      Student[]
+  Schedules     BatchSchedule[]
 }
 
-model Parent {
-  id        String    @id
-  username  String    @unique
-  name      String
-  surname   String
-  email     String?   @unique
-  phone     String    @unique
-  address   String
-  createdAt DateTime  @default(now())
-  students  Student[]
+model BatchSchedule {
+  ScheduleID    String  @id
+  BatchID       String
+  TrainerID     String
+  Date          DateTime
+  StartTime     DateTime
+  EndTime       DateTime
+  TotalHours    Float
+  Topics        String
+  Batch         Batch   @relation(fields: [BatchID], references: [BatchID])
+  Trainer       Trainer @relation(fields: [TrainerID], references: [TrainerID])
 }
 
-model Grade {
-  id    Int @id @default(autoincrement())
-  level Int @unique
-
-  students Student[]
-  classess Class[]
+model Trainer {
+  TrainerID           String  @id
+  TrainerName         String
+  Contact             String
+  Email               String
+  Specialization      String
+  NameOfAccountHolder String
+  BankName            String
+  AccountNo           String
+  IFSCCode            String
+  PANCard             String
+  BankBranchAddress   String
+  AadharCard          String
+  YearsOfExperience   Int
+  Schedules           BatchSchedule[]
+  TrainerAssignments  TrainerAssignment[]
+  TrainerInvoiceData  TrainerInvoiceData[]
 }
 
-model Class {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
-  capacity Int
-
-  supervisorId  String?
-  supervisor    Teacher?       @relation(fields: [supervisorId], references: [id])
-  lessons       Lesson[]
-  students      Student[]
-  gradeId       Int
-  grade         Grade          @relation(fields: [gradeId], references: [id])
-  events        Event[]
-  announcements Announcement[]
+model TrainerAssignment {
+  TrainerAssignmentID String   @id
+  TrainerID           String
+  ProjectCode         String
+  ScheduleID          String
+  Trainer             Trainer @relation(fields: [TrainerID], references: [TrainerID])
+  Project             Project @relation(fields: [ProjectCode], references: [ProjectCode])
+  Schedule           BatchSchedule @relation(fields: [ScheduleID], references: [ScheduleID])
 }
 
-model Subject {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  teachers Teacher[]
-  lessons  Lesson[]
+model Invoice {
+  SNo                  Int     @id @default(autoincrement())
+  ProjectCode          String
+  InvoiceNo            String
+  PaymentType          String
+  TotalContractValue   Float
+  PaymentPercentage    Float
+  AmountFromMOU        Float
+  AmountRaised         Float
+  DateRaised           DateTime
+  InvoiceCode          String
+  InvoiceType          String
+  Status               String
+  Remarks              String
+  GAInvoiceCode       String
+  Project              Project @relation(fields: [ProjectCode], references: [ProjectCode])
 }
 
-model Lesson {
-  id        Int      @id @default(autoincrement())
-  name      String
-  day       Day
-  startTime DateTime
-  endTime   DateTime
-
-  subjectId   Int
-  subject     Subject      @relation(fields: [subjectId], references: [id])
-  classId     Int
-  class       Class        @relation(fields: [classId], references: [id])
-  teacherId   String
-  teacher     Teacher      @relation(fields: [teacherId], references: [id])
-  exams       Exam[]
-  assignments Assignment[]
-  attendances Attendance[]
-}
-
-model Exam {
-  id        Int      @id @default(autoincrement())
-  title     String
-  startTime DateTime
-  endTime   DateTime
-
-  lessonId Int
-  lesson   Lesson   @relation(fields: [lessonId], references: [id])
-  results  Result[]
-}
-
-model Assignment {
-  id        Int      @id @default(autoincrement())
-  title     String
-  startDate DateTime
-  dueDate   DateTime
-
-  lessonId Int
-  lesson   Lesson   @relation(fields: [lessonId], references: [id])
-  results  Result[]
-}
-
-model Result {
-  id    Int @id @default(autoincrement())
-  score Int
-
-  examId       Int?
-  exam         Exam?       @relation(fields: [examId], references: [id])
-  assignmentId Int?
-  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
-  studentId    String
-  student      Student     @relation(fields: [studentId], references: [id])
-}
-
-model Attendance {
-  id      Int      @id @default(autoincrement())
-  date    DateTime
-  present Boolean
-
-  studentId String
-  student   Student @relation(fields: [studentId], references: [id])
-  lessonId  Int
-  lesson    Lesson  @relation(fields: [lessonId], references: [id])
-}
-
-model Event {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  startTime   DateTime
-  endTime     DateTime
-
-  classId Int?
-  class   Class? @relation(fields: [classId], references: [id])
-}
-
-model Announcement {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  date        DateTime
-
-  classId Int?
-  class   Class? @relation(fields: [classId], references: [id])
-}
-
-enum UserSex {
-  MALE
-  FEMALE
-}
-
-enum Day {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
+model TrainerInvoiceData {
+  InvoiceID            String   @id
+  Date                 DateTime
+  BillNo              String
+  ProjectCode         String
+  TrainerAssignmentID String
+  TrainerID           String
+  TrainerName         String
+  Topic               String
+  Domain              String
+  FromDate            DateTime
+  ToDate              DateTime
+  NoOfHours           Int
+  NoOfStudents        Int
+  NoOfSessions        Int
+  NoOfDays            Int
+  ChargesPerHour      Float
+  Conveyance          Float
+  FoodAllowance       Float
+  Lodging             Float
+  TotalTrainingCharges Float
+  TotalReimbursements Float
+  TDSDeduction        Float
+  Total               Float
+  AdhocAdditionDeduction Float
+  NetPayment          Float
+  Project             Project @relation(fields: [ProjectCode], references: [ProjectCode])
+  Trainer             Trainer @relation(fields: [TrainerID], references: [TrainerID])
+  TrainerAssignment   TrainerAssignment @relation(fields: [TrainerAssignmentID], references: [TrainerAssignmentID])
 }
