@@ -1,4 +1,4 @@
-Learning Management Dashboard
+# Learning Management Dashboard
 
 ## Getting Started
 
