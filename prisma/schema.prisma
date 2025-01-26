@@ -73,18 +73,18 @@ model Batch {
   Students      Student[]
   Schedules     BatchSchedule[]
 }
-
 model BatchSchedule {
-  ScheduleID    String  @id
-  BatchID       String
-  TrainerID     String
-  Date          DateTime
-  StartTime     DateTime
-  EndTime       DateTime
-  TotalHours    Float
-  Topics        String
-  Batch         Batch   @relation(fields: [BatchID], references: [BatchID])
-  Trainer       Trainer @relation(fields: [TrainerID], references: [TrainerID])
+  ScheduleID          String               @id
+  BatchID             String
+  TrainerID           String
+  Date                DateTime
+  StartTime           DateTime
+  EndTime             DateTime
+  TotalHours          Float
+  Topics              String
+  Batch               Batch                @relation(fields: [BatchID], references: [BatchID])
+  Trainer             Trainer              @relation(fields: [TrainerID], references: [TrainerID])
+  TrainerAssignments  TrainerAssignment[]  // Opposite relation field
 }
 
 model Trainer {
@@ -107,13 +107,14 @@ model Trainer {
 }
 
 model TrainerAssignment {
-  TrainerAssignmentID String   @id
+  TrainerAssignmentID String                @id
   TrainerID           String
   ProjectCode         String
   ScheduleID          String
-  Trainer             Trainer @relation(fields: [TrainerID], references: [TrainerID])
-  Project             Project @relation(fields: [ProjectCode], references: [ProjectCode])
-  Schedule           BatchSchedule @relation(fields: [ScheduleID], references: [ScheduleID])
+  Trainer             Trainer               @relation(fields: [TrainerID], references: [TrainerID])
+  Project             Project               @relation(fields: [ProjectCode], references: [ProjectCode])
+  Schedule            BatchSchedule         @relation(fields: [ScheduleID], references: [ScheduleID])
+  TrainerInvoiceData  TrainerInvoiceData[]  // Opposite relation field
 }
 
 model Invoice {
